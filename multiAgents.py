@@ -82,6 +82,20 @@ class ReflexAgent(Agent):
         # foodDistances = [self.dc.getDistance(newPos, foodPosition) for foodPosition in foodPositions]
 
         "*** YOUR CODE HERE ***"
+        foodPositions = newFood.asList()
+        foodDistances = [self.dc.getDistance(newPos, foodPosition) for foodPosition in foodPositions]
+        ghostPositions = [ghostState.getPosition() for ghostState in newGhostStates]
+        ghostDistances = [self.dc.getDistance(newPos, ghostPosition) for ghostPosition in ghostPositions]
+        
+        
+
+        """
+        print("Ghost pos")
+        print(ghostDistances)
+        print("food dist")
+        print(foodDistances)
+        """
+
         return successorGameState.getScore()
 
 def scoreEvaluationFunction(currentGameState):
