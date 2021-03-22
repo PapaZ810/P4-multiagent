@@ -74,6 +74,7 @@ class ReflexAgent(Agent):
         newFood = successorGameState.getFood()
         newGhostStates = successorGameState.getGhostStates()
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
+        foodNum = currentGameState.getFood().count()
 
         if self.dc == None:
             self.dc = distance.Calculator(currentGameState.data.layout)
@@ -84,19 +85,19 @@ class ReflexAgent(Agent):
 
         "*** YOUR CODE HERE ***"
         foodPositions = newFood.asList()
-        foodDistances = [self.dc.getDistance(currentPosition, foodPosition) for foodPosition in foodPositions]
-        ghostPositions = [ghostState.getPosition() for ghostState in newGhostStates]
-        ghostDistances = [self.dc.getDistance(currentPosition, ghostPosition) for ghostPosition in ghostPositions]
-        
-        score = 0
 
-        if self.dc.getDistance(newPos, int(ghostDistances[0])) > ghostDistances[0]:
-            score+=7
-
-        if self.dc.getDistance(newPos, foodDistances) > foodDistances:
-            score+=5
         
-        return score
+        if(len(foodPositions)) == foodNum:
+            dis = 10000
+            for food in foodPositions:
+                if self.dc.getDistance(food, newPos) < dis:
+                    dis = self.dc.getDistance(food, newPos)
+        else:
+            dis = 0
+        for ghost in newGhostStates:
+            dis += 4 ** (2-self.dc.getDistance(ghost.getPosition(), newPos))
+
+        return -dis
 
 def scoreEvaluationFunction(currentGameState):
     """
