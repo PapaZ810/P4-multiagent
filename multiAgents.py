@@ -158,7 +158,49 @@ class MinimaxAgent(MultiAgentSearchAgent):
         Returns whether or not the game state is a losing state
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        
+        if gameState.isWin() or gameState.isLose():
+            return Directions.STOP
+        nextMoves = gameState.getLegalPacmanActions(self)
+        num = gameState.getNumAgents() - 1
+        value = -10000
+        chosenMove = Directions.STOP
+        for move in nextMoves:
+            nextState = gameState.generatePacmanSuccessor(move)
+            if nextState.isWin():
+                return move
+            score = self.moveGhost(nextState, move, 1)
+            if score > value:
+                value = score
+                chosenMove = move
+        return chosenMove
+    
+    def moveGhost(self, gameState, ghostNum, depth):
+        if gameState.isWin() or gameState.isLose():
+            return self.evaluationFunction(gameState)
+        nextMoves = gameState.getLegalActions(ghostNum)
+        if len(nextMoves) == 0:
+            return self.evaluationFunction(gameState)
+        nextStates = [gameState.generateSuccessor(ghostNum, action) for action in nextMoves]
+        num = ghostNum - 1
+        if num == 0:
+            if depth == self.depth:
+                scores = [self.evaluationFunction(nextState) for nextState in nextStates]
+            else:
+                scores = [self.moveAgent(nextState, depth) for nextState in nextStates]
+        else:
+            scores = [self.moveGhost(nextState, num, depth) for nextState in nextStates]
+        return min(scores)
+
+    def moveAgent(self, gameState, depth):
+        if gameState.isWin() or gameState.isLose():
+            return self.evaluationFunction(gameState)
+        nextMoves = gameState.getLegalPacmanActions(self)
+        nextStates = [gameState.generatePacmanSuccessor(action) for action in nextMoves]
+        num = gameState.getNumAgents() - 1
+        scores = [self.moveGhost(nextState, num, depth+1) for nextState in nextStates]
+        return max(scores)
+
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
