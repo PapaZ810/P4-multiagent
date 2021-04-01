@@ -159,47 +159,49 @@ class MinimaxAgent(MultiAgentSearchAgent):
         """
         "*** YOUR CODE HERE ***"
         
-        if gameState.isWin() or gameState.isLose():
-            return Directions.STOP
-        nextMoves = gameState.getLegalPacmanActions(self)
+        nextMoves = gameState.getLegalActions(0)
         num = gameState.getNumAgents() - 1
-        value = -10000
-        chosenMove = Directions.STOP
+        value = -10000.0
+        chosenMove = None
         for move in nextMoves:
-            nextState = gameState.generatePacmanSuccessor(move)
-            if nextState.isWin():
-                return move
-            score = self.moveGhost(nextState, move, 1)
+            nextState = gameState.generateSuccessor(0, move)
+            score = self.moveMin(nextState, 0, 0)
+            print(score)
             if score > value:
                 value = score
                 chosenMove = move
         return chosenMove
     
-    def moveGhost(self, gameState, ghostNum, depth):
-        if gameState.isWin() or gameState.isLose():
+    def moveMin(self, gameState, ghostNum, depth):
+        if gameState.isWin() or gameState.isLose() or depth == self.depth:
             return self.evaluationFunction(gameState)
         nextMoves = gameState.getLegalActions(ghostNum)
-        if len(nextMoves) == 0:
-            return self.evaluationFunction(gameState)
-        nextStates = [gameState.generateSuccessor(ghostNum, action) for action in nextMoves]
+        value = 10000.0
         num = ghostNum - 1
-        if num == 0:
-            if depth == self.depth:
-                scores = [self.evaluationFunction(nextState) for nextState in nextStates]
-            else:
-                scores = [self.moveAgent(nextState, depth) for nextState in nextStates]
+        if (ghostNum < gameState.getNumAgents() - 1):
+            for action in nextMoves:
+                val2 = self.moveMin(gameState.generateSuccessor(ghostNum, action), num+1, depth)
+                if val2 < value:
+                    value = val2
+            return value
         else:
-            scores = [self.moveGhost(nextState, num, depth) for nextState in nextStates]
-        return min(scores)
+            for action in nextMoves:
+                val2 = self.moveMax((gameState.generateSuccessor(ghostNum, action)), depth+1)
+                if(val2 < value):
+                    value = val2 
+            return value
 
-    def moveAgent(self, gameState, depth):
-        if gameState.isWin() or gameState.isLose():
+    def moveMax(self, gameState, depth):
+        if (len(gameState.getLegalActions(0))) or depth == self.depth:
             return self.evaluationFunction(gameState)
-        nextMoves = gameState.getLegalPacmanActions(self)
-        nextStates = [gameState.generatePacmanSuccessor(action) for action in nextMoves]
+        value = -10000.0
+        nextMoves = gameState.getLegalActions(0)
         num = gameState.getNumAgents() - 1
-        scores = [self.moveGhost(nextState, num, depth+1) for nextState in nextStates]
-        return max(scores)
+        for action in nextMoves:
+            val2 = self.moveMin(gameState.generateSuccessor(0, action), num, depth)
+            if val2 > value:
+                value = val2
+        return value
 
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
