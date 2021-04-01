@@ -160,7 +160,6 @@ class MinimaxAgent(MultiAgentSearchAgent):
         "*** YOUR CODE HERE ***"
         
         nextMoves = gameState.getLegalActions(0)
-        num = gameState.getNumAgents() - 1
         value = -10000.0
         chosenMove = None
         for move in nextMoves:
@@ -177,28 +176,27 @@ class MinimaxAgent(MultiAgentSearchAgent):
             return self.evaluationFunction(gameState)
         nextMoves = gameState.getLegalActions(ghostNum)
         value = 10000.0
-        num = ghostNum - 1
         if (ghostNum < gameState.getNumAgents() - 1):
             for action in nextMoves:
-                val2 = self.moveMin(gameState.generateSuccessor(ghostNum, action), num+1, depth)
+                val2 = self.moveMin(gameState.generateSuccessor(ghostNum, action), ghostNum+1, depth)
                 if val2 < value:
                     value = val2
             return value
         else:
             for action in nextMoves:
-                val2 = self.moveMax((gameState.generateSuccessor(ghostNum, action)), depth+1)
+                val2 = self.moveMax((gameState.generateSuccessor(0, action)), depth+1)
                 if(val2 < value):
                     value = val2 
             return value
 
     def moveMax(self, gameState, depth):
-        if (len(gameState.getLegalActions(0))) or depth == self.depth:
+        if  depth > self.depth or (len(gameState.getLegalActions(0))):
             return self.evaluationFunction(gameState)
         value = -10000.0
         nextMoves = gameState.getLegalActions(0)
-        num = gameState.getNumAgents() - 1
+        num = gameState.getNumAgents()-1
         for action in nextMoves:
-            val2 = self.moveMin(gameState.generateSuccessor(0, action), num, depth)
+            val2 = self.moveMin(gameState.generateSuccessor(num, action), 1, depth)
             if val2 > value:
                 value = val2
         return value
