@@ -158,48 +158,39 @@ class MinimaxAgent(MultiAgentSearchAgent):
         Returns whether or not the game state is a losing state
         """
         "*** YOUR CODE HERE ***"
-        
-        nextMoves = gameState.getLegalActions(0)
-        value = -10000.0
-        chosenMove = None
-        for move in nextMoves:
-            nextState = gameState.generateSuccessor(0, move)
-            score = self.moveMin(nextState, 0, 0)
-            print(score)
-            if score > value:
-                value = score
-                chosenMove = move
-        return chosenMove
+        val, move = self.moveMax(gameState, 0)
+        return move
     
     def moveMin(self, gameState, ghostNum, depth):
-        if gameState.isWin() or gameState.isLose() or depth == self.depth:
-            return self.evaluationFunction(gameState)
+        if gameState.isWin() or gameState.isLose():
+            return self.evaluationFunction(gameState), None
         nextMoves = gameState.getLegalActions(ghostNum)
-        value = 10000.0
+        chosenMove = None
+        value = float("inf")
         if (ghostNum < gameState.getNumAgents() - 1):
             for action in nextMoves:
-                val2 = self.moveMin(gameState.generateSuccessor(ghostNum, action), ghostNum+1, depth)
+                val2, act2 = self.moveMin(gameState.generateSuccessor(ghostNum, action), ghostNum+1, depth)
                 if val2 < value:
-                    value = val2
-            return value
+                    value, chosenMove = val2, action
+            return value, chosenMove
         else:
             for action in nextMoves:
-                val2 = self.moveMax((gameState.generateSuccessor(0, action)), depth+1)
+                val2, act2 = self.moveMax((gameState.generateSuccessor(0, action)), depth)
                 if(val2 < value):
-                    value = val2 
-            return value
+                    value, chosenMove = val2, action
+            return value, chosenMove
 
     def moveMax(self, gameState, depth):
-        if  depth > self.depth or (len(gameState.getLegalActions(0))):
-            return self.evaluationFunction(gameState)
-        value = -10000.0
+        if depth == self.depth or (len(gameState.getLegalActions(0))<1) or gameState.isWin() or gameState.isLose():
+            return self.evaluationFunction(gameState), None
+        value = float("-inf")
+        chosenMove = None
         nextMoves = gameState.getLegalActions(0)
-        num = gameState.getNumAgents()-1
         for action in nextMoves:
-            val2 = self.moveMin(gameState.generateSuccessor(num, action), 1, depth)
+            val2, act2 = self.moveMin(gameState.generateSuccessor(0, action), 1, depth+1)
             if val2 > value:
-                value = val2
-        return value
+                value, chosenMove = val2, action
+        return value, chosenMove
 
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
