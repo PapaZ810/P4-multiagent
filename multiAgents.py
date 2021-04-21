@@ -204,17 +204,18 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         Returns the minimax action using self.depth and self.evaluationFunction
         """
         "*** YOUR CODE HERE ***"
-        value, move = moveMax(gameState, 0, float("-inf"), float("inf"))
+        value, move = self.moveMax(gameState, -0, float("-inf"), float("inf"))
         return move
     
     def moveMax(self, gameState, depth, alpha, beta):
         if gameState.isLose() or gameState.isWin() or depth == self.depth or (len(gameState.getLegalActions(0))<1):
             return self.evaluationFunction(gameState), None
+        depth=depth+1
         value = float("-inf")
         chosenMove = None
         nextMoves = gameState.getLegalActions(0)
         for action in nextMoves:
-            val2, act2 = moveMin(gameState.generateSuccessor(0, action), depth+1, alpha, beta, 1)
+            val2, act2 = self.moveMin(gameState.generateSuccessor(0, action), depth, alpha, beta, 1)
             if val2 > value:
                 value, chosenMove = val2, action
                 alpha = max(alpha, value)
@@ -230,21 +231,21 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         nextMoves = gameState.getLegalActions(num)
         if (num < gameState.getNumAgents() - 1):
             for action in nextMoves:
-                val2, act2 = moveMin(gameState.generateSuccessor(num, action), depth, alpha, beta, num+1)
+                val2, act2 = self.moveMin(gameState.generateSuccessor(num, action), depth, alpha, beta, num+1)
                 if val2 < value:
                     value, chosenMove = val2, action
-                    alpha = max(alpha, value)
-                if value <= beta:
+                    beta = min(beta, value)
+                if value <= alpha:
                     return value, chosenMove
             return value, chosenMove
         else:
             for action in nextMoves:
-                val2, act2 = moveMax(gameState.generateSuccessor(num, action), depth, alpha, beta)
-            if val2 < value:
-                value, chosenMove = val2, action
-                alpha = max(alpha, value)
-            if value <= beta:
-                return value, chosenMove
+                val2, act2 = self.moveMax(gameState.generateSuccessor(num, action), depth, alpha, beta)
+                if val2 < value:
+                    value, chosenMove = val2, action
+                    beta = min(beta, value)
+                if value <= alpha:
+                    return value, chosenMove
             return value, chosenMove
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
