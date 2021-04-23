@@ -271,9 +271,9 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         chosenMove = None
         nextMoves = gameState.getLegalActions(0)
         for action in nextMoves:
-            val2, act2 = self.moveExp(gameState.generateSuccessor(0, action), 1, depth)
+            val2, act2 = self.moveExp(gameState.generateSuccessor(0, action), 1, depth+1)
             if val2 > v:
-                value, chosenMove = val2, action
+                v, chosenMove = val2, action
         return v, chosenMove
 
     def moveExp(self, gameState, num, depth):
@@ -285,18 +285,15 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         if (num < gameState.getNumAgents() - 1):
             for action in nextMoves:
                 val2, act2 = self.moveExp(gameState.generateSuccessor(num, action), num+1, depth)
-                p = self.probability(action)
+                p = 1.0/len(nextMoves)
                 value += p * val2
             return value, chosenMove
         else:
             for action in nextMoves:
                 val2, act2 = self.moveMax((gameState.generateSuccessor(num, action)), depth)
-                #add probability here
+                p = 1.0/len(nextMoves)
             return value, chosenMove
 
-    def probability(self, action):
-        #TODO implement
-        return action
 
 def betterEvaluationFunction(currentGameState):
     """
