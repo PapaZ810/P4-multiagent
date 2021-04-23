@@ -204,7 +204,7 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         Returns the minimax action using self.depth and self.evaluationFunction
         """
         "*** YOUR CODE HERE ***"
-        value, move = self.moveMax(gameState, -0, float("-inf"), float("inf"))
+        value, move = self.moveMax(gameState, 0, float("-inf"), float("inf"))
         return move
     
     def moveMax(self, gameState, depth, alpha, beta):
@@ -261,7 +261,42 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         legal moves.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        value, move = self.moveMax(gameState, 0)
+        return move
+
+    def moveMax(self, gameState, depth):
+        if gameState.isLose() or gameState.isWin() or depth == self.depth or (len(gameState.getLegalActions(0))<1):
+            return self.evaluationFunction(gameState), None
+        v = float("-inf")
+        chosenMove = None
+        nextMoves = gameState.getLegalActions(0)
+        for action in nextMoves:
+            val2, act2 = self.moveExp(gameState.generateSuccessor(0, action), 1, depth)
+            if val2 > v:
+                value, chosenMove = val2, action
+        return v, chosenMove
+
+    def moveExp(self, gameState, num, depth):
+        if gameState.isLose() or gameState.isWin():
+            return self.evaluationFunction(gameState), None
+        value = 0
+        chosenMove = None
+        nextMoves = gameState.getLegalActions(num)
+        if (num < gameState.getNumAgents() - 1):
+            for action in nextMoves:
+                val2, act2 = self.moveExp(gameState.generateSuccessor(num, action), num+1, depth)
+                p = self.probability(action)
+                value += p * val2
+            return value, chosenMove
+        else:
+            for action in nextMoves:
+                val2, act2 = self.moveMax((gameState.generateSuccessor(num, action)), depth)
+                #add probability here
+            return value, chosenMove
+
+    def probability(self, action):
+        #TODO implement
+        return action
 
 def betterEvaluationFunction(currentGameState):
     """
