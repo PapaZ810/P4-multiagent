@@ -292,6 +292,7 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
             for action in nextMoves:
                 val2, act2 = self.moveMax((gameState.generateSuccessor(num, action)), depth)
                 p = 1.0/len(nextMoves)
+                value += p * val2
             return value, chosenMove
 
 
@@ -303,7 +304,35 @@ def betterEvaluationFunction(currentGameState):
     DESCRIPTION: <write something here so we know what you did>
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+
+
+    def closestFood(position, foodPositions):
+        foodDistances = []
+        for food in foodPositions:
+            foodDistances.append(util.manhattanDistance(food, position))
+        return min(foodDistances) if len(foodDistances) > 0 else 1
+    
+    def closestGhost(position, ghosts):
+        ghostDistances = []
+        for ghost in ghosts:
+            ghostDistances.append(util.manhattanDistance(ghost.getPosition(), position))
+        return min(ghostDistances) if len(ghostDistances) > 0 else 1
+
+    def foodSum(position, foodPositions):
+        foodDistances = []
+        for food in foodPositions:
+            foodDistances.append(util.manhattanDistance(food, position))
+        return sum(foodDistances)
+
+    position = currentGameState.getPacmanPosition()
+    score = currentGameState.getScore()
+    food = currentGameState.getFood().asList()
+    ghosts = currentGameState.getGhostStates()
+
+    score = score * 2 if closestFood(position, food) < closestGhost(position, ghosts) + 3 else score
+    score -= .35 * foodSum(position, food)
+
+    return score
 
 # Abbreviation
 better = betterEvaluationFunction
